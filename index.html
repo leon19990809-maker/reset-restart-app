@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#11120f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="RE:SET" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="description" content="一个帮助戒断旧习惯、建立饮食边界的私人重启计划。" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./styles.css?v=1.1.0" />
+  <title>RE:SET 重启计划</title>
+</head>
+<body>
+  <div class="desktop-backdrop" aria-hidden="true">
+    <div class="desktop-copy"><span>RE:SET</span><strong>把注意力还给自己。</strong></div>
+  </div>
+
+  <div class="app-shell" id="app-shell">
+
+    <main class="app-main" id="app-main">
+      <!-- QUIT -->
+      <section class="page is-active" data-page="quit" aria-labelledby="quit-title">
+        <div class="page-heading">
+          <div class="eyebrow"><span class="eyebrow-line"></span>QUIT LAB</div>
+          <div class="page-title-row">
+            <div><h1 id="quit-title">戒断</h1><p>每一段时长，都是一次重新选择。</p></div>
+            <button class="round-add" type="button" data-action="add-habit" aria-label="新建戒断">＋</button>
+          </div>
+        </div>
+        <div class="summary-bar" id="quit-summary"></div>
+        <div class="habit-list" id="habit-list"></div>
+        <button class="full-add" type="button" data-action="add-habit"><span>＋</span> 新建一个戒断</button>
+        <div class="help-card">
+          <span class="help-icon">?</span>
+          <div><strong>计时和打卡是两件事</strong><p>计时从你设定的开始时间持续累计；每日打卡用来记录“今天也没有回头”。</p></div>
+        </div>
+
+        <div class="section-row stats-heading">
+          <div><span class="section-index">WEEKLY REVIEW</span><h2>本周阶段统计</h2></div>
+          <span class="section-caption" id="week-range">最近 7 天</span>
+        </div>
+        <div id="week-stage-chart"></div>
+        <div id="habit-stats-table"></div>
+      </section>
+
+      <!-- FOOD -->
+      <section class="page" data-page="food" aria-labelledby="food-title">
+        <div class="page-heading">
+          <div class="eyebrow"><span class="eyebrow-line"></span>FOOD RULES</div>
+          <div class="page-title-row">
+            <div><h1 id="food-title">饮食边界</h1><p>绿灯放心吃，红灯坚决不碰。</p></div>
+            <button class="round-add" type="button" data-action="add-food" data-zone="allowed" aria-label="添加食物">＋</button>
+          </div>
+        </div>
+
+        <div class="strict-banner" id="strict-banner">
+          <div><span class="strict-dot"></span><strong>严格模式</strong><small>红灯规则会一直显示在首页</small></div>
+          <label class="switch" aria-label="严格模式">
+            <input type="checkbox" id="strict-toggle" checked />
+            <span class="switch-track"></span>
+          </label>
+        </div>
+
+        <div class="food-summary" id="food-summary"></div>
+        <div class="segmented" id="zone-filter" role="tablist" aria-label="按区域筛选">
+          <button class="active" type="button" data-zone-filter="all" role="tab">全部</button>
+          <button type="button" data-zone-filter="allowed" role="tab"><i class="seg-dot green"></i>绿灯</button>
+          <button type="button" data-zone-filter="forbidden" role="tab"><i class="seg-dot red"></i>红灯</button>
+        </div>
+        <div class="chip-row" id="category-filter" aria-label="按食物类型筛选"></div>
+        <div class="food-list" id="food-list"></div>
+        <div class="dual-add">
+          <button type="button" class="dual-add-green" data-action="add-food" data-zone="allowed"><span>＋</span> 添加绿灯食物</button>
+          <button type="button" class="dual-add-red" data-action="add-food" data-zone="forbidden"><span>＋</span> 添加红灯食物</button>
+        </div>
+        <div class="rule-note">
+          <strong>为什么红灯要写得这么绝对？</strong>
+          <p>因为模糊的“偶尔一次”最容易让旧习惯回来。把边界写清楚，选择才会变简单。</p>
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="tabbar" aria-label="主要导航">
+      <button class="tab active" type="button" data-tab="quit" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg>
+        <span>戒断</span>
+      </button>
+      <button class="tab" type="button" data-tab="food">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M16 3c-2 2-3 5-3 8h6c0-3-1-6-3-8ZM16 11v10"/></svg>
+        <span>饮食</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="sheet-backdrop" id="sheet-backdrop" aria-hidden="true">
+    <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div id="sheet-content"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-icon">✓</span><span id="toast-text">已保存</span>
+  </div>
+
+  <script src="./app.js?v=1.1.0" defer></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "RE:SET 重启计划",
+  "short_name": "RE:SET",
+  "description": "记录戒断时长，建立饮食边界。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f2ec",
+  "theme_color": "#11120f",
+  "icons": [
+    { "src": "./assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
