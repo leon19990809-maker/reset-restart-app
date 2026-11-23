@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.1.0" />
+  <link rel="stylesheet" href="./styles.css?v=1.2.0" />
   <title>RE:SET 重启计划</title>
 </head>
 <body>
@@ -39,6 +39,8 @@
           <span class="help-icon">?</span>
           <div><strong>计时和打卡是两件事</strong><p>计时从你设定的开始时间持续累计；每日打卡用来记录“今天也没有回头”。</p></div>
         </div>
+
+        <div id="daily-motivation"></div>
 
         <div class="section-row stats-heading">
           <div><span class="section-index">WEEKLY REVIEW</span><h2>本周阶段统计</h2></div>
@@ -72,7 +74,6 @@
           <button type="button" data-zone-filter="allowed" role="tab"><i class="seg-dot green"></i>绿灯</button>
           <button type="button" data-zone-filter="forbidden" role="tab"><i class="seg-dot red"></i>红灯</button>
         </div>
-        <div class="chip-row" id="category-filter" aria-label="按食物类型筛选"></div>
         <div class="food-list" id="food-list"></div>
         <div class="dual-add">
           <button type="button" class="dual-add-green" data-action="add-food" data-zone="allowed"><span>＋</span> 添加绿灯食物</button>
@@ -109,6 +110,6 @@
     <span class="toast-icon">✓</span><span id="toast-text">已保存</span>
   </div>
 
-  <script src="./app.js?v=1.1.0" defer></script>
+  <script src="./app.js?v=1.2.0" defer></script>
 </body>
 </html>

@@ -11,6 +11,43 @@
     other: '其他'
   };
   const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const DAILY_QUOTES = [
+    '今天不需要完美，只需要不回头。',
+    '你正在把选择权，一点点拿回来。',
+    '最难的不是坚持，是重新开始后还愿意继续。',
+    '每一次拒绝，都是在替未来的自己投票。',
+    '别急着变好，先把今天过好。',
+    '身体会记住你为它做的每一件小事。',
+    '习惯会反复敲门，但你可以选择不开。',
+    '你不是在忍，你是在选择。',
+    '把注意力从欲望手里拿回来。',
+    '今天稳住一次，明天就更容易一点。',
+    '慢一点没关系，方向对就好。',
+    '你不需要赢过所有人，只需要赢回自己。',
+    '真正的自由，是不被旧习惯牵着走。',
+    '让今天成为证据，而不是借口。',
+    '你的坚持，正在变成新的默认设置。',
+    '想放弃的时候，先撑过这三分钟。',
+    '每一次好好吃饭，都是对身体的照顾。',
+    '边界越清楚，生活越轻松。',
+    '不碰，不是失去，是把位置留给更重要的东西。',
+    '今天的克制，会变成明天的底气。',
+    '你不是失败了，你只是还在路上。',
+    '把小事做好，时间会给你答案。',
+    '先照顾自己，再去照顾世界。',
+    '今天能做的，就是把下一步走好。',
+    '你正在成为那个说到做到的人。',
+    '不用等有动力，先做对的事。',
+    '继续，不是为了证明给谁看，是为了活得更像自己。',
+    '偶尔想回到过去，不代表你必须回去。',
+    '今天的选择，正在悄悄改变明天。',
+    '所有的重启，都从这一刻开始。',
+    '你不是在戒掉什么，你是在把生活拿回来。',
+    '今天也请站在自己这一边。',
+    '进步不一定轰轰烈烈，有时只是没有重蹈覆辙。',
+    '你和更好的自己之间，只隔着今天这一次选择。',
+    '把身体当成队友，而不是对手。',
+  ];
   const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   const MILESTONES = [
     { days: 1, label: '第一步已经迈出' },
@@ -23,7 +60,7 @@
 
   let state = loadState();
   let currentTab = 'quit';
-  let foodFilter = { zone: 'all', category: 'all' };
+  let foodFilter = { zone: 'all' };
   let toastTimer = null;
   let sheetOpen = false;
 
@@ -110,6 +147,8 @@
         { id: 'food-night-snack', zone: 'forbidden', category: 'snack', name: '夜宵', note: '21:00 后不进食' }
       ],
       strictMode: true,
+      quoteDate: localDateKey(),
+      quoteOffset: 0,
       swaps: [
         { id: 'swap-sweet', trigger: '想喝甜的', replacement: '无糖气泡水 + 柠檬' },
         { id: 'swap-fried', trigger: '想吃炸的', replacement: '空气炸鸡胸 + 辣椒粉' },
@@ -153,6 +192,8 @@
       habits,
       foods,
       strictMode: input.strictMode !== false,
+      quoteDate: /^\d{4}-\d{2}-\d{2}$/.test(String(input.quoteDate || '')) ? input.quoteDate : localDateKey(),
+      quoteOffset: Math.max(0, Number(input.quoteOffset) || 0) % DAILY_QUOTES.length,
       swaps,
       createdAt: isValidDate(input.createdAt) ? new Date(input.createdAt).toISOString() : new Date().toISOString(),
       updatedAt: isValidDate(input.updatedAt) ? new Date(input.updatedAt).toISOString() : new Date().toISOString()
@@ -166,6 +207,8 @@
       habits: [],
       foods: [],
       strictMode: true,
+      quoteDate: localDateKey(),
+      quoteOffset: 0,
       swaps: [
         { id: 'swap-sweet', trigger: '想喝甜的', replacement: '无糖气泡水 + 柠檬' },
         { id: 'swap-fried', trigger: '想吃炸的', replacement: '空气炸鸡胸 + 辣椒粉' },
@@ -272,6 +315,29 @@
         today: index === 6
       };
     });
+  }
+
+  function renderDailyMotivation() {
+    const target = $('#daily-motivation');
+    if (!target) return;
+    const today = localDateKey();
+    if (state.quoteDate !== today) {
+      state.quoteDate = today;
+      state.quoteOffset = 0;
+    }
+    const primary = state.habits[0];
+    const days = primary ? daysSince(primary.startAt) : 0;
+    const quote = DAILY_QUOTES[(Math.abs(localDayNumber()) + state.quoteOffset) % DAILY_QUOTES.length];
+    target.innerHTML = `
+      <article class="motivation-card">
+        <div class="motivation-top"><span>今日一句 / DAILY NOTE</span><small>${primary ? `DAY ${days} · 今天` : '新的一天'}</small></div>
+        <div class="motivation-mark">“</div>
+        <blockquote>${escapeHTML(quote)}</blockquote>
+        <div class="motivation-foot">
+          <span>${primary ? '把今天走好，就够了。' : '从想改变的那一刻开始。'}</span>
+          <button type="button" data-action="next-quote">换一句 ↻</button>
+        </div>
+      </article>`;
   }
 
   function nextMilestone(days) {
@@ -390,14 +456,26 @@
           </table>
         </div>
       </article>`;
+    renderDailyMotivation();
   }
 
   function renderFoodPage() {
     const allowed = state.foods.filter((food) => food.zone === 'allowed');
     const forbidden = state.foods.filter((food) => food.zone === 'forbidden');
+    const total = state.foods.length;
+    const greenPercent = total ? Math.round((allowed.length / total) * 100) : 50;
     $('#food-summary').innerHTML = `
-      <div class="food-summary-card"><span>GREEN / 放心吃</span><strong>${allowed.length}</strong></div>
-      <div class="food-summary-card"><span>RED / 坚决不碰</span><strong>${forbidden.length}</strong></div>`;
+      <article class="food-orbit-card">
+        <div class="food-orbit-chart" style="--green:${greenPercent}%">
+          <div class="food-orbit-inner"><strong>${total}</strong><span>FOOD RULES</span></div>
+        </div>
+        <div class="food-orbit-copy">
+          <small>YOUR FOOD MAP</small>
+          <h3>${allowed.length} 个放心吃，<br>${forbidden.length} 个坚决不碰</h3>
+          <p>绿色越多，选择越轻松。把边界画清楚，身体会更自由。</p>
+          <div class="orbit-legend"><span><i class="green"></i>绿灯 ${allowed.length}</span><span><i class="red"></i>红灯 ${forbidden.length}</span></div>
+        </div>
+      </article>`;
 
     const strictToggle = $('#strict-toggle');
     strictToggle.checked = state.strictMode;
@@ -410,39 +488,48 @@
       button.setAttribute('aria-selected', String(active));
     });
 
-    const categories = [
-      ['all', '全部类型'],
-      ['fruit', '水果'],
-      ['protein', '肉蛋 / 蛋白'],
-      ['drink', '饮品'],
-      ['snack', '零食 / 炸物'],
-      ['other', '其他']
-    ];
-    $('#category-filter').innerHTML = categories.map(([value, label]) => `
-      <button type="button" class="${foodFilter.category === value ? 'active' : ''}" data-category-filter="${value}">${label}</button>
-    `).join('');
-
-    const filtered = state.foods.filter((food) => {
-      const zoneOk = foodFilter.zone === 'all' || food.zone === foodFilter.zone;
-      const categoryOk = foodFilter.category === 'all' || food.category === foodFilter.category;
-      return zoneOk && categoryOk;
-    });
-
-    if (!filtered.length) {
-      $('#food-list').innerHTML = '<div class="empty-list">这个分类下还没有规则。<br>点下面的按钮添加一条。</div>';
-      return;
-    }
-
-    $('#food-list').innerHTML = filtered.map((food) => {
-      const forbiddenItem = food.zone === 'forbidden';
+    const zones = foodFilter.zone === 'all' ? ['allowed', 'forbidden'] : [foodFilter.zone];
+    $('#food-list').innerHTML = zones.map((zone) => {
+      const zoneFoods = state.foods.filter((food) => food.zone === zone);
+      const forbiddenZone = zone === 'forbidden';
+      const categories = Object.keys(CATEGORY_LABELS).filter((category) => zoneFoods.some((food) => food.category === category));
+      const clusters = categories.map((category) => {
+        const items = zoneFoods.filter((food) => food.category === category);
+        return `
+          <article class="food-cluster ${forbiddenZone ? 'forbidden' : ''}">
+            <div class="food-cluster-head">
+              <div><span class="food-cluster-label">${forbiddenZone ? 'RED ZONE' : 'GREEN ZONE'}</span><h4>${CATEGORY_LABELS[category]}</h4></div>
+              <span class="cluster-count">${items.length}</span>
+            </div>
+            <div class="bubble-grid">
+              ${items.map((food) => `
+                <button class="food-bubble" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}">
+                  <span class="bubble-kicker">${forbiddenZone ? 'NO' : 'YES'}</span>
+                  <strong>${escapeHTML(food.name)}</strong>
+                  <small>${escapeHTML(food.note || CATEGORY_LABELS[category])}</small>
+                </button>`).join('')}
+              <button class="food-bubble add" type="button" data-action="add-food" data-zone="${zone}" data-category="${category}" aria-label="添加到${CATEGORY_LABELS[category]}">
+                <strong>＋</strong><small>添加</small>
+              </button>
+            </div>
+          </article>`;
+      }).join('');
       return `
-        <button class="food-row ${forbiddenItem ? 'forbidden' : ''}" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}">
-          <span class="food-avatar">${escapeHTML([...food.name][0] || '?')}</span>
-          <span class="food-copy"><strong>${escapeHTML(food.name)}</strong><span>${escapeHTML(CATEGORY_LABELS[food.category])}${food.note ? ` · ${escapeHTML(food.note)}` : ''}</span></span>
-          <span class="food-zone">${forbiddenItem ? '×' : '✓'}</span>
-        </button>`;
+        <section class="zone-section">
+          <div class="zone-section-head">
+            <div class="zone-section-title">
+              <i class="${forbiddenZone ? 'red' : 'green'}"></i>
+              <div><strong>${forbiddenZone ? '红灯区 · 坚决不碰' : '绿灯区 · 放心吃'}</strong><small>${forbiddenZone ? '明确边界，减少触发' : '优先选择，照顾身体'}</small></div>
+            </div>
+            <span class="zone-section-count">${zoneFoods.length} 项</span>
+          </div>
+          <div class="food-cluster-grid">
+            ${clusters || `<div class="zone-empty">${forbiddenZone ? '还没有红灯规则。' : '还没有绿灯食物。'}<br>点下方按钮添加第一条。</div>`}
+          </div>
+        </section>`;
     }).join('');
   }
+
 
   function renderAll() {
     renderQuitPage();
@@ -591,11 +678,11 @@
     });
   }
 
-  function openFoodForm(id = null, presetZone = 'allowed') {
+  function openFoodForm(id = null, presetZone = 'allowed', presetCategory = '') {
     const food = state.foods.find((item) => item.id === id);
     const editing = Boolean(food);
     const zone = food?.zone || (presetZone === 'forbidden' ? 'forbidden' : 'allowed');
-    const category = food?.category || (zone === 'allowed' ? 'fruit' : 'drink');
+    const category = food?.category || (CATEGORY_LABELS[presetCategory] ? presetCategory : (zone === 'allowed' ? 'fruit' : 'drink'));
     openSheet(`
       <div class="sheet-head">
         <div><h2 id="sheet-title">${editing ? '编辑食物规则' : '添加食物规则'}</h2><p>写清楚吃或不吃，下一次选择会更快。</p></div>
@@ -729,13 +816,6 @@
         return;
       }
 
-      const categoryFilter = event.target.closest('[data-category-filter]');
-      if (categoryFilter) {
-        foodFilter.category = categoryFilter.dataset.categoryFilter;
-        renderFoodPage();
-        return;
-      }
-
       const actionTarget = event.target.closest('[data-action]');
       if (!actionTarget) return;
       const action = actionTarget.dataset.action;
@@ -746,9 +826,15 @@
       if (action === 'checkin') checkinHabit(id);
       if (action === 'delete-habit') deleteHabit(id);
       if (action === 'restart-habit') restartHabit(id);
-      if (action === 'add-food') openFoodForm(null, actionTarget.dataset.zone || 'allowed');
+      if (action === 'add-food') openFoodForm(null, actionTarget.dataset.zone || 'allowed', actionTarget.dataset.category || '');
       if (action === 'edit-food') openFoodForm(id);
       if (action === 'delete-food') deleteFood(id);
+      if (action === 'next-quote') {
+        state.quoteDate = localDateKey();
+        state.quoteOffset = (state.quoteOffset + 1) % DAILY_QUOTES.length;
+        saveState();
+        renderDailyMotivation();
+      }
     });
 
     $('#sheet-backdrop').addEventListener('click', (event) => {
