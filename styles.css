@@ -645,8 +645,11 @@ a { color: inherit; text-decoration: none; }
 .food-cluster-label { display: block; color: var(--muted-2); font-size: 6px; font-weight: 800; letter-spacing: .15em; }
 .food-cluster h4 { margin: 4px 0 0; font-size: 16px; letter-spacing: -.04em; }
 .food-cluster.forbidden .food-cluster-label { color: rgba(255,255,255,.28); }
+.cluster-actions { display: flex; align-items: center; gap: 7px; }
 .cluster-count { min-width: 25px; height: 25px; padding: 0 8px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: var(--lime-soft); color: #5a720d; font-size: 8px; font-weight: 900; }
 .food-cluster.forbidden .cluster-count { background: rgba(255,113,91,.13); color: var(--coral); }
+.cluster-add { width: 27px; height: 27px; border: 1px solid rgba(17,18,15,.13); border-radius: 50%; background: transparent; color: var(--muted); font-size: 16px; line-height: 1; font-weight: 400; cursor: pointer; }
+.food-cluster.forbidden .cluster-add { border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.55); }
 .bubble-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px 8px; margin-top: 18px; }
 .food-bubble {
   position: relative;

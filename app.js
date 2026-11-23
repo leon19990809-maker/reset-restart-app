@@ -499,7 +499,10 @@
           <article class="food-cluster ${forbiddenZone ? 'forbidden' : ''}">
             <div class="food-cluster-head">
               <div><span class="food-cluster-label">${forbiddenZone ? 'RED ZONE' : 'GREEN ZONE'}</span><h4>${CATEGORY_LABELS[category]}</h4></div>
-              <span class="cluster-count">${items.length}</span>
+              <div class="cluster-actions">
+                <span class="cluster-count">${items.length}</span>
+                <button class="cluster-add" type="button" data-action="add-food" data-zone="${zone}" data-category="${category}" aria-label="添加到${CATEGORY_LABELS[category]}">＋</button>
+              </div>
             </div>
             <div class="bubble-grid">
               ${items.map((food) => `
@@ -508,9 +511,6 @@
                   <strong>${escapeHTML(food.name)}</strong>
                   <small>${escapeHTML(food.note || CATEGORY_LABELS[category])}</small>
                 </button>`).join('')}
-              <button class="food-bubble add" type="button" data-action="add-food" data-zone="${zone}" data-category="${category}" aria-label="添加到${CATEGORY_LABELS[category]}">
-                <strong>＋</strong><small>添加</small>
-              </button>
             </div>
           </article>`;
       }).join('');
