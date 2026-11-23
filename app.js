@@ -5,6 +5,7 @@
   const DAY_MS = 86400000;
   const CATEGORY_LABELS = {
     fruit: '水果',
+    vegetable: '蔬菜',
     protein: '肉蛋 / 蛋白',
     drink: '饮品',
     snack: '零食 / 炸物',
@@ -49,6 +50,8 @@
     '把身体当成队友，而不是对手。',
   ];
   const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const GREEN_RING_COLORS = ['#d7ff3f', '#b9e833', '#edff9e', '#a8d72f', '#d2f46a', '#c0ea45'];
+  const RED_RING_COLORS = ['#ff715b', '#d94f3b', '#a93a2c', '#e86653', '#b94738', '#f07b66'];
   const MILESTONES = [
     { days: 1, label: '第一步已经迈出' },
     { days: 3, label: '身体开始适应' },
@@ -118,7 +121,7 @@
     }
 
     return {
-      version: 1,
+      version: 2,
       profile: { name: '' },
       habits: [
         {
@@ -135,6 +138,9 @@
         { id: 'food-blueberry', zone: 'allowed', category: 'fruit', name: '蓝莓', note: '低糖 · 花青素' },
         { id: 'food-apple', zone: 'allowed', category: 'fruit', name: '苹果', note: '纤维 · 饱腹感' },
         { id: 'food-avocado', zone: 'allowed', category: 'fruit', name: '牛油果', note: '优质脂肪' },
+        { id: 'food-broccoli', zone: 'allowed', category: 'vegetable', name: '西兰花', note: '高纤维 · 维生素C' },
+        { id: 'food-spinach', zone: 'allowed', category: 'vegetable', name: '菠菜', note: '叶酸 · 铁' },
+        { id: 'food-carrot', zone: 'allowed', category: 'vegetable', name: '胡萝卜', note: 'β-胡萝卜素' },
         { id: 'food-salmon', zone: 'allowed', category: 'protein', name: '三文鱼', note: 'Omega-3' },
         { id: 'food-chicken', zone: 'allowed', category: 'protein', name: '鸡胸肉', note: '高蛋白' },
         { id: 'food-egg', zone: 'allowed', category: 'protein', name: '鸡蛋', note: '全营养' },
@@ -172,13 +178,24 @@
       createdAt: isValidDate(habit.createdAt) ? new Date(habit.createdAt).toISOString() : new Date().toISOString()
     })) : [];
 
-    const foods = Array.isArray(input.foods) ? input.foods.filter(Boolean).map((food) => ({
+    let foods = Array.isArray(input.foods) ? input.foods.filter(Boolean).map((food) => ({
       id: String(food.id || uid('food')),
       zone: food.zone === 'forbidden' ? 'forbidden' : 'allowed',
       category: CATEGORY_LABELS[food.category] ? food.category : 'other',
       name: String(food.name || '未命名食物'),
       note: String(food.note || '')
     })) : [];
+
+    if ((Number(input.version) || 0) < 2) {
+      const vegetableDefaults = [
+        { id: 'food-broccoli', zone: 'allowed', category: 'vegetable', name: '西兰花', note: '高纤维 · 维生素C' },
+        { id: 'food-spinach', zone: 'allowed', category: 'vegetable', name: '菠菜', note: '叶酸 · 铁' },
+        { id: 'food-carrot', zone: 'allowed', category: 'vegetable', name: '胡萝卜', note: 'β-胡萝卜素' }
+      ];
+      vegetableDefaults.forEach((food) => {
+        if (!foods.some((item) => item.id === food.id || item.name === food.name)) foods.push(food);
+      });
+    }
 
     const swaps = Array.isArray(input.swaps) && input.swaps.length ? input.swaps.map((swap) => ({
       id: String(swap.id || uid('swap')),
@@ -187,7 +204,7 @@
     })) : fallback.swaps;
 
     return {
-      version: 1,
+      version: 2,
       profile: { name: String(input.profile?.name || '') },
       habits,
       foods,
@@ -202,7 +219,7 @@
 
   function createEmptyState(keepProfile = true) {
     return {
-      version: 1,
+      version: 2,
       profile: { name: keepProfile ? state.profile.name : '' },
       habits: [],
       foods: [],
@@ -227,7 +244,12 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return createDefaultState();
-      return normalizeState(JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      const normalized = normalizeState(parsed);
+      if ((Number(parsed.version) || 0) < 2) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+      }
+      return normalized;
     } catch (error) {
       console.warn('Could not load saved state:', error);
       return createDefaultState();
@@ -459,6 +481,26 @@
     renderDailyMotivation();
   }
 
+  function polarPoint(radius, angleDegrees, center = 160) {
+    const radians = angleDegrees * Math.PI / 180;
+    return { x: center + radius * Math.cos(radians), y: center + radius * Math.sin(radians) };
+  }
+
+  function donutSegmentPath(outerRadius, innerRadius, startAngle, endAngle) {
+    const outerStart = polarPoint(outerRadius, startAngle);
+    const outerEnd = polarPoint(outerRadius, endAngle);
+    const innerEnd = polarPoint(innerRadius, endAngle);
+    const innerStart = polarPoint(innerRadius, startAngle);
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+    return [
+      `M ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
+      `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+      'Z'
+    ].join(' ');
+  }
+
   function renderFoodPage() {
     const allowed = state.foods.filter((food) => food.zone === 'allowed');
     const forbidden = state.foods.filter((food) => food.zone === 'forbidden');
@@ -504,24 +546,35 @@
                 <button class="cluster-add" type="button" data-action="add-food" data-zone="${zone}" data-category="${category}" aria-label="添加到${CATEGORY_LABELS[category]}">＋</button>
               </div>
             </div>
-            <div class="category-orbit ${forbiddenZone ? 'forbidden' : ''}" style="--orbit:${items.map((food, index) => {
-              const step = 360 / Math.max(1, items.length);
-              const colors = forbiddenZone
-                ? ['rgba(255,113,91,.52)', 'rgba(255,113,91,.24)', 'rgba(255,113,91,.38)']
-                : ['rgba(215,255,63,.72)', 'rgba(215,255,63,.3)', 'rgba(215,255,63,.5)'];
-              return `${colors[index % colors.length]} ${index * step}deg ${(index + 1) * step}deg`;
-            }).join(', ')}">
-              <div class="orbit-inner">
-                <span>${forbiddenZone ? 'RED ZONE' : 'GREEN ZONE'}</span>
-                <strong>${CATEGORY_LABELS[category]}</strong>
-                <small>${items.length} 项</small>
-              </div>
-              ${items.map((food, index) => {
-                const angle = (-90 + (index * 360) / Math.max(1, items.length)) * Math.PI / 180;
-                const x = 50 + Math.cos(angle) * 37;
-                const y = 50 + Math.sin(angle) * 37;
-                return `<button class="orbit-label" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}" title="${escapeHTML(food.note || CATEGORY_LABELS[category])}" style="--x:${x.toFixed(2)}%;--y:${y.toFixed(2)}%">${escapeHTML(food.name)}</button>`;
-              }).join('')}
+            <div class="category-orbit ${forbiddenZone ? 'forbidden' : ''}">
+              <svg class="category-ring-svg" viewBox="0 0 320 320" role="img" aria-label="${escapeHTML(CATEGORY_LABELS[category])}分类圆环">
+                ${(() => {
+                  const step = 360 / Math.max(1, items.length);
+                  const gap = items.length > 1 ? Math.min(1.8, step * 0.08) : 0;
+                  const colors = forbiddenZone ? RED_RING_COLORS : GREEN_RING_COLORS;
+                  return items.map((food, index) => {
+                    const color = colors[index % colors.length];
+                    const startAngle = -90 + index * step + gap / 2;
+                    const endAngle = -90 + (index + 1) * step - gap / 2;
+                    const midAngle = -90 + (index + 0.5) * step;
+                    const labelPoint = polarPoint(122, midAngle);
+                    const displayName = [...food.name].length > 6 ? [...food.name].slice(0, 6).join('') + '…' : food.name;
+                    const segment = items.length === 1
+                      ? `<circle cx="160" cy="160" r="122" fill="none" stroke="${color}" stroke-width="60" />`
+                      : `<path d="${donutSegmentPath(152, 92, startAngle, endAngle)}" fill="${color}" />`;
+                    return `<g class="orbit-segment-group" data-action="edit-food" data-id="${escapeHTML(food.id)}" role="button" tabindex="0" aria-label="编辑 ${escapeHTML(food.name)}">
+                      <title>${escapeHTML(food.name)}${food.note ? ` · ${escapeHTML(food.note)}` : ''}</title>
+                      ${segment}
+                      <text class="orbit-segment-label" x="${labelPoint.x.toFixed(2)}" y="${labelPoint.y.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" font-size="${items.length > 6 ? 8 : 9.5}">${escapeHTML(displayName)}</text>
+                    </g>`;
+                  }).join('');
+                })()}
+                <circle cx="160" cy="160" r="152" fill="none" class="orbit-outer-border" />
+                <circle cx="160" cy="160" r="92" class="orbit-center-disc" />
+                <text x="160" y="151" text-anchor="middle" class="orbit-center-kicker">${forbiddenZone ? 'RED ZONE' : 'GREEN ZONE'}</text>
+                <text x="160" y="176" text-anchor="middle" class="orbit-center-name">${escapeHTML(CATEGORY_LABELS[category])}</text>
+                <text x="160" y="198" text-anchor="middle" class="orbit-center-count">${items.length} 项</text>
+              </svg>
             </div>
           </article>`;
       }).join('');

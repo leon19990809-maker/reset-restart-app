@@ -1,9 +1,9 @@
-const CACHE_NAME = 'reset-restart-v1.3.1';
+const CACHE_NAME = 'reset-restart-v1.4.0';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=1.3.1',
-  './app.js?v=1.3.1',
+  './styles.css?v=1.4.0',
+  './app.js?v=1.4.0',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png',
