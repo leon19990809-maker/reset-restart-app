@@ -504,11 +504,24 @@
                 <button class="cluster-add" type="button" data-action="add-food" data-zone="${zone}" data-category="${category}" aria-label="添加到${CATEGORY_LABELS[category]}">＋</button>
               </div>
             </div>
-            <div class="bubble-grid">
-              ${items.map((food) => `
-                <button class="food-bubble" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}" title="${escapeHTML(food.note || CATEGORY_LABELS[category])}">
-                  <strong>${escapeHTML(food.name)}</strong>
-                </button>`).join('')}
+            <div class="category-orbit ${forbiddenZone ? 'forbidden' : ''}" style="--orbit:${items.map((food, index) => {
+              const step = 360 / Math.max(1, items.length);
+              const colors = forbiddenZone
+                ? ['rgba(255,113,91,.52)', 'rgba(255,113,91,.24)', 'rgba(255,113,91,.38)']
+                : ['rgba(215,255,63,.72)', 'rgba(215,255,63,.3)', 'rgba(215,255,63,.5)'];
+              return `${colors[index % colors.length]} ${index * step}deg ${(index + 1) * step}deg`;
+            }).join(', ')}">
+              <div class="orbit-inner">
+                <span>${forbiddenZone ? 'RED ZONE' : 'GREEN ZONE'}</span>
+                <strong>${CATEGORY_LABELS[category]}</strong>
+                <small>${items.length} 项</small>
+              </div>
+              ${items.map((food, index) => {
+                const angle = (-90 + (index * 360) / Math.max(1, items.length)) * Math.PI / 180;
+                const x = 50 + Math.cos(angle) * 37;
+                const y = 50 + Math.sin(angle) * 37;
+                return `<button class="orbit-label" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}" title="${escapeHTML(food.note || CATEGORY_LABELS[category])}" style="--x:${x.toFixed(2)}%;--y:${y.toFixed(2)}%">${escapeHTML(food.name)}</button>`;
+              }).join('')}
             </div>
           </article>`;
       }).join('');
