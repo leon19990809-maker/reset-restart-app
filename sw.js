@@ -1,9 +1,9 @@
-const CACHE_NAME = 'reset-restart-v1.2.1';
+const CACHE_NAME = 'reset-restart-v1.3.0';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=1.2.1',
-  './app.js?v=1.2.1',
+  './styles.css?v=1.3.0',
+  './app.js?v=1.3.0',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png',
@@ -16,6 +16,10 @@ self.addEventListener('install', (event) => {
       .then((cache) => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -33,7 +37,7 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
@@ -45,7 +49,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-store' })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

@@ -506,10 +506,8 @@
             </div>
             <div class="bubble-grid">
               ${items.map((food) => `
-                <button class="food-bubble" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}">
-                  <span class="bubble-kicker">${forbiddenZone ? 'NO' : 'YES'}</span>
+                <button class="food-bubble" type="button" data-action="edit-food" data-id="${escapeHTML(food.id)}" aria-label="编辑 ${escapeHTML(food.name)}" title="${escapeHTML(food.note || CATEGORY_LABELS[category])}">
                   <strong>${escapeHTML(food.name)}</strong>
-                  <small>${escapeHTML(food.note || CATEGORY_LABELS[category])}</small>
                 </button>`).join('')}
             </div>
           </article>`;
@@ -859,10 +857,23 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     if (!/^https?:$/.test(location.protocol)) return;
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch((error) => {
+    window.addEventListener('load', async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+        await registration.update();
+        if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      } catch (error) {
         console.warn('Service worker registration failed:', error);
-      });
+      }
+    });
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      const lastReload = Number(sessionStorage.getItem('reset-sw-reload-at') || 0);
+      if (Date.now() - lastReload < 10000) return;
+      refreshing = true;
+      sessionStorage.setItem('reset-sw-reload-at', String(Date.now()));
+      window.location.reload();
     });
   }
 

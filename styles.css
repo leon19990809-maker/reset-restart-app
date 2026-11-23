@@ -650,44 +650,34 @@ a { color: inherit; text-decoration: none; }
 .food-cluster.forbidden .cluster-count { background: rgba(255,113,91,.13); color: var(--coral); }
 .cluster-add { width: 27px; height: 27px; border: 1px solid rgba(17,18,15,.13); border-radius: 50%; background: transparent; color: var(--muted); font-size: 16px; line-height: 1; font-weight: 400; cursor: pointer; }
 .food-cluster.forbidden .cluster-add { border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.55); }
-.bubble-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px 8px; margin-top: 18px; }
+.bubble-grid { display: flex; flex-wrap: wrap; gap: 11px 12px; margin-top: 16px; }
 .food-bubble {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  padding: 8px 5px;
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  padding: 7px;
   border-radius: 50%;
-  border: 1px solid rgba(17,18,15,.1);
-  background: #eef0e5;
+  border: 1.5px solid rgba(17,18,15,.2);
+  background: transparent;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  color: var(--ink);
   cursor: pointer;
-  box-shadow: 0 6px 15px rgba(17,18,15,.025);
-  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
   overflow: hidden;
 }
-.food-bubble:nth-child(3n+2) { transform: translateY(8px); }
-.food-bubble::after { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(17,18,15,.045); border-radius: 50%; pointer-events: none; }
-.food-bubble:hover { box-shadow: 0 10px 22px rgba(17,18,15,.08); background: #e9ecdc; }
-.food-bubble:active { transform: scale(.96) translateY(2px); }
-.food-bubble .bubble-kicker { color: #718d16; font-size: 6px; font-weight: 900; letter-spacing: .08em; }
-.food-bubble strong { display: block; width: 100%; margin-top: 4px; font-size: 12px; line-height: 1.15; letter-spacing: -.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.food-bubble small { display: block; width: 100%; margin-top: 3px; padding: 0 4px; color: var(--muted); font-size: 6px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.food-cluster.forbidden .food-bubble { background: #20211a; border-color: rgba(255,113,91,.55); box-shadow: 0 0 0 4px rgba(255,113,91,.035), 0 8px 18px rgba(0,0,0,.13); }
-.food-cluster.forbidden .food-bubble::after { border-color: rgba(255,255,255,.035); }
-.food-cluster.forbidden .food-bubble:hover { background: #27271e; }
-.food-cluster.forbidden .bubble-kicker { color: var(--coral); }
-.food-cluster.forbidden .food-bubble small { color: rgba(255,255,255,.34); }
-.food-bubble.add { border: 1px dashed rgba(17,18,15,.22); background: transparent; color: var(--muted); box-shadow: none; }
-.food-bubble.add::after { display: none; }
-.food-bubble.add strong { margin: 0; color: var(--muted); font-size: 19px; font-weight: 300; }
-.food-bubble.add small { margin-top: 4px; font-size: 6px; }
-.food-cluster.forbidden .food-bubble.add { border-color: rgba(255,255,255,.18); color: rgba(255,255,255,.38); background: transparent; }
-.food-cluster.forbidden .food-bubble.add strong { color: rgba(255,255,255,.55); }
-.food-cluster.forbidden .food-bubble.add small { color: rgba(255,255,255,.28); }
+.food-bubble::before { content: ""; position: absolute; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--lime); }
+.food-bubble::after { content: ""; position: absolute; inset: 4px; border: 1px solid rgba(17,18,15,.055); border-radius: 50%; pointer-events: none; }
+.food-bubble:hover { background: rgba(215,255,63,.14); border-color: rgba(17,18,15,.4); }
+.food-bubble:active { transform: scale(.95); }
+.food-bubble strong { display: -webkit-box; width: 100%; margin-top: 7px; font-size: 10px; line-height: 1.2; letter-spacing: -.025em; font-weight: 700; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.food-cluster.forbidden .food-bubble { background: transparent; border-color: rgba(255,113,91,.7); color: #fff; }
+.food-cluster.forbidden .food-bubble::before { background: var(--coral); }
+.food-cluster.forbidden .food-bubble::after { border-color: rgba(255,255,255,.045); }
+.food-cluster.forbidden .food-bubble:hover { background: rgba(255,113,91,.08); border-color: var(--coral); }
 .cluster-empty { margin-top: 14px; padding: 16px 10px; border: 1px dashed rgba(17,18,15,.14); border-radius: 15px; text-align: center; color: var(--muted); font-size: 8px; }
 .food-cluster.forbidden .cluster-empty { border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.34); }
 .zone-empty { padding: 28px 18px; border: 1px dashed var(--line-strong); border-radius: 20px; text-align: center; color: var(--muted); font-size: 9px; line-height: 1.65; }
